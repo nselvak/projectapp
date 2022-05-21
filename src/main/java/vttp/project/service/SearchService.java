@@ -5,9 +5,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -16,37 +18,27 @@ import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import vttp.project.model.Music;
+import vttp.project.model.Search;
+import vttp.project.model.User;
+import vttp.project.repository.SearchRepo;
 
+@Service
 public class SearchService {
 
+    @Autowired
+    private SearchRepo searchRepo;
 
     final String URL = "https://itunes.apple.com/search";
 
-    // setting default
-    public List<Music> searchGiphy(String artist) {
-        return searchMusic(artist, 5, "US");
 
-    }
-
-    public List<Music> searchGiphy(String artist, String country) {
-        return searchMusic(artist, 5, country);
-
-    }
-
-    public List<Music> searchGiphy(String artist, Integer limit) {
-        return searchMusic(artist, limit, "US");
-
-    }
-
-
-    public List<Music> searchMusic(String artist, Integer limit, String country) {
+    public List<Music> searchMusic(Search search, User user) {
 
         List<Music> list = new ArrayList<Music>();
         String finalURL = UriComponentsBuilder
                     .fromUriString(URL)
-                    .queryParam("term", artist)
-                    .queryParam("country", country)
-                    .queryParam("limit", limit)
+                    .queryParam("term", search.getArtist())
+                    .queryParam("country", search.getCountry())
+                    .queryParam("limit", search.getLimit())
                     .toUriString();
         
 
@@ -87,22 +79,26 @@ public class SearchService {
                 JsonObject temp = results.getJsonObject(i);
 
                 
-                String explicit =  temp.getString("trackExplicitness");
+                music.setExplicit(temp.getString("trackExplicitness"));
                 
-                String artistName = temp.getString("artistName");
+                music.setArtistName(temp.getString("artistName"));
 
-                String trackName = temp.getString("trackName");
-                String trackCensorName = temp.getString("trackCensoredName");
+                music.setTrackName(temp.getString("trackName"));
+                music.setTrackCensorName(temp.getString("trackCensoredName"));
 
-                String collectionName = temp.getString("collectionName");
-                String collectionCensorName = temp.getString("collectionCensoredName");
+                music.setCollectionName(temp.getString("collectionName"));
+                music.setCollectionCensorName(temp.getString("collectionCensoredName"));
 
-                String countryName = temp.getString("country");
-                String genre = temp.getString("primaryGenreName");
+                music.setCountryName(temp.getString("country"));
+                music.setGenre(temp.getString("primaryGenreName"));
 
                 // images and music
-                String artwork = temp.getString("artworkUrl100");
-                String mp4 = temp.getString("previewUrl");
+                music.setArtwork(temp.getString("artworkUrl100"));
+                music.setMp4(temp.getString("previewUrl"));
+
+                if(searchRepo.checkMusic(music, user) == 1) {
+                    searchRepo.save(music, user);
+                }
 
                 list.add(music);
             }

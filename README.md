@@ -2,7 +2,9 @@
 
 Status of pipelines  
 
-[![Workflow](https://github.com/nselvak/projectapp/actions/workflows/giphy.yaml/badge.svg)](https://github.com/nselvak/projectapp/actions/workflows/main.yaml)
+[![Workflow](https://github.com/nselvak/projectapp/actions/workflows/main.yaml/badge.svg)](https://github.com/nselvak/projectapp/actions/workflows/main.yaml)
+
+[![Heroku](https://github.com/nselvak/projectapp/actions/workflows/app.yaml/badge.svg)](https://github.com/nselvak/projectapp/actions/workflows/app.yaml)
 
 Status of Coverage
 
